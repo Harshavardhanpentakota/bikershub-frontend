@@ -37,7 +37,7 @@ export default function Newsletter() {
               value={email}
               onChange={e => setEmail(e.target.value)}
               placeholder="your@email.com"
-              className="flex-1 bg-white/8 text-white border border-white/15 px-4 py-3 text-sm placeholder:text-white/30 outline-none focus:border-primary transition-colors"
+              className="flex-1 bg-white/8 text-black border border-white/15 px-4 py-3 text-sm placeholder:text-white/30 outline-none focus:border-primary transition-colors"
               required
             />
             <button

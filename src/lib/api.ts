@@ -4,6 +4,7 @@
 // ─────────────────────────────────────────────────────────────
 
 const BASE = (import.meta.env.VITE_API_URL as string) || 'http://localhost:5000/api';
+const GOOGLE_OAUTH_URL = (import.meta.env.VITE_GOOGLE_OAUTH_URL as string) || `${BASE}/auth/google`;
 
 // ── Typed error ──────────────────────────────────────────────
 export class ApiError extends Error {
@@ -154,6 +155,18 @@ export const authApi = {
     req<{ message: string }>('/auth/forgot-password', {
       method: 'POST',
       body: JSON.stringify({ email }),
+    }),
+
+  getGoogleAuthUrl: (redirectTo?: string) => {
+    const url = new URL(GOOGLE_OAUTH_URL);
+    if (redirectTo) url.searchParams.set('redirectTo', redirectTo);
+    return url.toString();
+  },
+
+  exchangeGoogleCode: (code: string, redirectTo?: string) =>
+    req<{ token: string; user: ApiUser }>('/auth/google/callback', {
+      method: 'POST',
+      body: JSON.stringify({ code, redirectTo }),
     }),
 };
 

@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
-import { authApi, ApiUser } from '@/lib/api';
+import { authApi, ApiUser, usersApi } from '@/lib/api';
 
 // ── Types ────────────────────────────────────────────────────
 interface AuthContextType {
@@ -9,6 +9,8 @@ interface AuthContextType {
   isLoading: boolean;
   login: (email: string, password: string) => Promise<void>;
   register: (name: string, email: string, password: string) => Promise<void>;
+  applyAuthPayload: (tok: string, u: ApiUser) => void;
+  loginWithToken: (tok: string) => Promise<void>;
   logout: () => void;
 }
 
@@ -66,6 +68,29 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     persist(tok, u);
   }, []);
 
+  const applyAuthPayload = useCallback((tok: string, u: ApiUser) => {
+    persist(tok, u);
+  }, []);
+
+  const loginWithToken = useCallback(async (tok: string) => {
+    localStorage.setItem(TOKEN_KEY, tok);
+    setToken(tok);
+    try {
+      const u = await usersApi.me();
+      localStorage.setItem(USER_KEY, JSON.stringify(u));
+      setUser(u);
+    } catch {
+      const storedUser = localStorage.getItem(USER_KEY);
+      if (storedUser) {
+        try {
+          setUser(JSON.parse(storedUser) as ApiUser);
+        } catch {
+          setUser(null);
+        }
+      }
+    }
+  }, []);
+
   const logout = useCallback(() => {
     // Fire-and-forget the server call; always clear client-side state
     authApi.logout().catch(() => null);
@@ -81,6 +106,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         isLoading,
         login,
         register,
+        applyAuthPayload,
+        loginWithToken,
         logout,
       }}
     >

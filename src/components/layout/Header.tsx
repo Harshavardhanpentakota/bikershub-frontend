@@ -22,6 +22,7 @@ export default function Header() {
   const [selectedModel, setSelectedModel] = useState("");
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
   const { totalItems } = useCart();
   const { isAuthenticated, user, logout } = useAuth();
   const navigate = useNavigate();
@@ -51,6 +52,13 @@ export default function Header() {
       setSelectedBrand("");
       setSelectedModel("");
     }
+  };
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    const q = searchQuery.trim();
+    navigate(q ? `/shop?search=${encodeURIComponent(q)}` : '/shop');
+    setSearchOpen(false);
   };
 
   return (
@@ -164,21 +172,30 @@ export default function Header() {
         {searchOpen && (
           <div className="border-t border-border bg-background animate-slide-in-up">
             <div className="container mx-auto px-4 py-3">
-              <div className="flex items-center gap-3">
+              <form onSubmit={handleSearch} className="flex items-center gap-3">
                 <Search size={18} className="text-muted-foreground" />
                 <input
                   autoFocus
                   type="text"
                   placeholder="Search helmets, gear, accessories..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
                   className="flex-1 bg-transparent text-sm outline-none placeholder:text-placeholder"
                 />
                 <button
+                  type="submit"
+                  className="text-xs font-semibold text-primary hover:text-accent transition-colors"
+                >
+                  Search
+                </button>
+                <button
+                  type="button"
                   onClick={() => setSearchOpen(false)}
                   className="text-muted-foreground hover:text-foreground"
                 >
                   <X size={18} />
                 </button>
-              </div>
+              </form>
             </div>
           </div>
         )}

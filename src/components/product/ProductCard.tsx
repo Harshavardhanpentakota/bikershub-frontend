@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Heart, Star, Eye, ShoppingCart } from 'lucide-react';
+import { Star, Eye, ShoppingCart } from 'lucide-react';
 import { Product } from '@/data/mockData';
 import { useCart } from '@/context/CartContext';
 import { toast } from 'sonner';
@@ -12,7 +12,6 @@ interface ProductCardProps {
 }
 
 export default function ProductCard({ product, onQuickView, compact = false }: ProductCardProps) {
-  const [wishlisted, setWishlisted] = useState(false);
   const [selectedColor, setSelectedColor] = useState(product.colors[0]?.name || '');
   const [selectedSize, setSelectedSize] = useState(product.sizes[0] || '');
   const { addItem } = useCart();
@@ -45,15 +44,6 @@ export default function ProductCard({ product, onQuickView, compact = false }: P
             {product.badge === 'discount' ? `-${product.discount}%` : product.badge === 'new' ? 'New' : 'Best Seller'}
           </span>
         )}
-
-        {/* Wishlist */}
-        <button
-          onClick={(e) => { e.preventDefault(); e.stopPropagation(); setWishlisted(!wishlisted); }}
-          className="absolute top-3 right-3 p-2 bg-background/80 hover:bg-background transition-colors"
-          aria-label="Toggle wishlist"
-        >
-          <Heart size={16} className={wishlisted ? 'fill-primary text-primary' : 'text-foreground'} />
-        </button>
 
         {/* Quick view */}
         <button

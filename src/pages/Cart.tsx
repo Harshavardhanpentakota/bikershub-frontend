@@ -41,7 +41,7 @@ export default function Cart() {
       <Header />
       <main className="flex-1 pt-20 pb-16">
         <div className="container mx-auto px-4">
-          <div className="flex items-center gap-3 mb-8">
+          <div className="flex flex-wrap items-center gap-3 mb-8">
             <Link to="/" className="text-muted-foreground hover:text-foreground"><ArrowLeft size={20} /></Link>
             <h1 className="font-display font-bold text-2xl">Shopping Cart ({items.length})</h1>
           </div>
@@ -50,7 +50,7 @@ export default function Cart() {
             {/* Items */}
             <div className="lg:col-span-2 space-y-4">
               {items.map(item => (
-                <div key={item.product.id} className="flex gap-4 p-4 border border-border bg-card animate-fade-in-up">
+                <div key={item.product.id} className="flex flex-col sm:flex-row gap-4 p-4 border border-border bg-card animate-fade-in-up">
                   <Link to={`/product/${item.product.id}`} className="w-24 h-24 flex-shrink-0 bg-surface overflow-hidden">
                     <img src={item.product.image} alt={item.product.name} className="w-full h-full object-cover" />
                   </Link>

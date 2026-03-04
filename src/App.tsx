@@ -15,6 +15,20 @@ import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import Profile from "./pages/Profile";
 import NotFound from "./pages/NotFound";
+import GoogleAuthCallback from "./pages/GoogleAuthCallback";
+import {
+  ContactUsPage,
+  FaqsPage,
+  ShippingInfoPage,
+  ReturnsPage,
+  SizeGuidePage,
+  TrackOrderPage,
+  RidersBlogPage,
+  BuyingGuidesPage,
+  GearReviewsPage,
+  AffiliatePage,
+  PressPage,
+} from "./pages/InfoPages";
 
 const queryClient = new QueryClient();
 
@@ -36,7 +50,19 @@ const App = () => (
               <Route path="/checkout" element={<Checkout />} />
               <Route path="/login" element={<Login />} />
               <Route path="/signup" element={<Signup />} />
+              <Route path="/auth/google/callback" element={<GoogleAuthCallback />} />
               <Route path="/profile" element={<Profile />} />
+              <Route path="/contact-us" element={<ContactUsPage />} />
+              <Route path="/faqs" element={<FaqsPage />} />
+              <Route path="/shipping-info" element={<ShippingInfoPage />} />
+              <Route path="/returns" element={<ReturnsPage />} />
+              <Route path="/size-guide" element={<SizeGuidePage />} />
+              <Route path="/track-order" element={<TrackOrderPage />} />
+              <Route path="/riders-blog" element={<RidersBlogPage />} />
+              <Route path="/buying-guides" element={<BuyingGuidesPage />} />
+              <Route path="/gear-reviews" element={<GearReviewsPage />} />
+              <Route path="/affiliate" element={<AffiliatePage />} />
+              <Route path="/press" element={<PressPage />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </BrowserRouter>

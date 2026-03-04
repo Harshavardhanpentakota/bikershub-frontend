@@ -64,12 +64,12 @@ export default function Profile() {
 
           <div className="grid lg:grid-cols-4 gap-8">
             {/* Sidebar */}
-            <div className="space-y-1">
+            <div className="flex lg:block gap-1 overflow-x-auto lg:overflow-visible">
               {tabs.map(t => (
                 <button
                   key={t.id}
                   onClick={() => setTab(t.id)}
-                  className={`w-full flex items-center gap-3 px-4 py-3 text-sm font-medium transition-colors ${
+                  className={`flex-shrink-0 lg:w-full flex items-center gap-3 px-4 py-3 text-sm font-medium transition-colors ${
                     tab === t.id ? 'bg-secondary text-secondary-foreground' : 'hover:bg-muted'
                   }`}
                 >
@@ -80,7 +80,7 @@ export default function Profile() {
               ))}
               <button
                 onClick={handleLogout}
-                className="w-full flex items-center gap-3 px-4 py-3 text-sm font-medium text-destructive hover:bg-destructive/5 transition-colors"
+                className="flex-shrink-0 lg:w-full flex items-center gap-3 px-4 py-3 text-sm font-medium text-destructive hover:bg-destructive/5 transition-colors"
               >
                 <LogOut size={16} />
                 Logout
@@ -110,14 +110,14 @@ export default function Profile() {
                             <div className="w-12 h-12 bg-surface overflow-hidden flex-shrink-0">
                               <img src={item.image} alt="" className="w-full h-full object-cover" />
                             </div>
-                            <span className="flex-1">{item.name} × {item.quantity}</span>
-                            <span className="font-medium">₹{item.price.toFixed(2)}</span>
+                            <span className="flex-1 min-w-0 line-clamp-2">{item.name} × {item.quantity}</span>
+                            <span className="font-medium flex-shrink-0">₹{item.price.toFixed(2)}</span>
                           </div>
                         ))}
                       </div>
-                      <div className="flex items-center justify-between pt-3 border-t border-border">
+                      <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:justify-between pt-3 border-t border-border">
                         <span className="text-sm font-display font-bold">Total: ₹{order.total.toFixed(2)}</span>
-                        <div className="flex gap-2">
+                        <div className="flex flex-wrap gap-2">
                           {order.trackingId && (
                             <button onClick={() => toast.info(`Tracking: ${order.trackingId}`)} className="px-3 py-1.5 border border-border text-xs font-medium hover:border-foreground transition-colors">
                               Track Order

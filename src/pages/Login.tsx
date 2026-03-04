@@ -4,6 +4,7 @@ import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 import { toast } from 'sonner';
 import { useAuth } from '@/context/AuthContext';
+import { authApi } from '@/lib/api';
 
 export default function Login() {
   const [email, setEmail] = useState('');
@@ -12,6 +13,11 @@ export default function Login() {
   const [error, setError] = useState('');
   const { login } = useAuth();
   const navigate = useNavigate();
+
+  const handleGoogleLogin = () => {
+    const redirectTo = `${window.location.origin}/auth/google/callback`;
+    window.location.href = authApi.getGoogleAuthUrl(redirectTo);
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -71,6 +77,23 @@ export default function Login() {
             {error && <p className="text-xs text-destructive">{error}</p>}
             <button type="submit" disabled={loading} className="w-full bg-primary text-primary-foreground py-3 font-semibold text-sm hover:bg-accent transition-colors btn-press disabled:opacity-60">
               {loading ? 'Signing in…' : 'Sign In'}
+            </button>
+
+            <div className="relative py-1">
+              <div className="absolute inset-0 flex items-center">
+                <span className="w-full border-t border-border" />
+              </div>
+              <div className="relative flex justify-center text-[11px] uppercase tracking-wider">
+                <span className="bg-background px-2 text-muted-foreground">or</span>
+              </div>
+            </div>
+
+            <button
+              type="button"
+              onClick={handleGoogleLogin}
+              className="w-full border border-border py-3 font-semibold text-sm hover:border-foreground transition-colors"
+            >
+              Continue with Google
             </button>
           </form>
 

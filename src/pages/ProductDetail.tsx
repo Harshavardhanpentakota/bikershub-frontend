@@ -108,7 +108,7 @@ export default function ProductDetail() {
       <main className="flex-1 pt-20">
         {/* Breadcrumb */}
         <div className="container mx-auto px-4 py-4">
-          <div className="flex items-center gap-2 text-xs text-muted-foreground">
+          <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
             <Link to="/" className="hover:text-primary">Home</Link>
             <ChevronRight size={12} />
             <Link to="/shop" className="hover:text-primary">{product.category}</Link>
@@ -125,12 +125,12 @@ export default function ProductDetail() {
                 <img src={allImages[mainImage]} alt={product.name} className="w-full h-full object-cover hover:scale-105 transition-transform duration-500" />
               </div>
               {allImages.length > 1 && (
-                <div className="flex gap-2">
+                <div className="flex gap-2 overflow-x-auto pb-1">
                   {allImages.map((img, i) => (
                     <button
                       key={i}
                       onClick={() => setMainImage(i)}
-                      className={`w-20 h-20 border-2 overflow-hidden transition-colors ${mainImage === i ? 'border-primary' : 'border-border'}`}
+                      className={`w-16 h-16 sm:w-20 sm:h-20 flex-shrink-0 border-2 overflow-hidden transition-colors ${mainImage === i ? 'border-primary' : 'border-border'}`}
                     >
                       <img src={img} alt="" className="w-full h-full object-cover" />
                     </button>
@@ -151,7 +151,7 @@ export default function ProductDetail() {
 
               <h1 className="font-display font-bold text-2xl lg:text-3xl text-foreground">{product.name}</h1>
 
-              <div className="flex items-center gap-3">
+              <div className="flex flex-wrap items-center gap-3">
                 <div className="flex gap-0.5">
                   {Array.from({ length: 5 }).map((_, i) => (
                     <Star key={i} size={16} className={i < Math.floor(product.rating) ? 'fill-warning text-warning' : 'text-border'} />
@@ -160,7 +160,7 @@ export default function ProductDetail() {
                 <span className="text-sm text-muted-foreground">{product.rating} ({product.reviewCount} reviews)</span>
               </div>
 
-              <div className="flex items-baseline gap-3">
+              <div className="flex flex-wrap items-baseline gap-3">
                 <span className="font-display font-bold text-3xl">₹{product.price.toFixed(2)}</span>
                 {product.originalPrice && (
                   <>
@@ -192,7 +192,7 @@ export default function ProductDetail() {
               {product.colors.length > 1 && (
                 <div>
                   <span className="text-sm font-medium mb-2 block">Color: {selectedColor}</span>
-                  <div className="flex gap-2">
+                  <div className="flex flex-wrap gap-2">
                     {product.colors.map(c => (
                       <button
                         key={c.name}
@@ -207,8 +207,8 @@ export default function ProductDetail() {
               )}
 
               {/* Quantity + Actions */}
-              <div className="flex items-center gap-4 pt-2">
-                <div className="flex items-center border border-border">
+              <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4 pt-2">
+                <div className="flex items-center justify-between sm:justify-start border border-border">
                   <button onClick={() => setQty(q => Math.max(1, q - 1))} className="p-3 hover:bg-muted transition-colors"><Minus size={16} /></button>
                   <span className="w-12 text-center font-medium">{qty}</span>
                   <button onClick={() => setQty(q => q + 1)} className="p-3 hover:bg-muted transition-colors"><Plus size={16} /></button>
@@ -250,12 +250,12 @@ export default function ProductDetail() {
 
           {/* Tabs */}
           <div className="mt-16">
-            <div className="flex border-b border-border">
+            <div className="flex overflow-x-auto border-b border-border">
               {(['description', 'specs', 'reviews'] as const).map(tab => (
                 <button
                   key={tab}
                   onClick={() => setActiveTab(tab)}
-                  className={`px-6 py-3 text-sm font-medium transition-colors border-b-2 -mb-px ${
+                  className={`whitespace-nowrap px-4 sm:px-6 py-3 text-sm font-medium transition-colors border-b-2 -mb-px ${
                     activeTab === tab ? 'border-primary text-primary' : 'border-transparent text-muted-foreground hover:text-foreground'
                   }`}
                 >

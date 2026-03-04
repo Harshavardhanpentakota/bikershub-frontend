@@ -6,7 +6,7 @@ import ProductCard from '@/components/product/ProductCard';
 import QuickViewModal from '@/components/product/QuickViewModal';
 import { categories, Product } from '@/data/mockData';
 import { productsApi, bikesApi } from '@/lib/api';
-import { Search, X, ChevronDown, ChevronUp, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Search, X, ChevronDown, ChevronUp, ChevronLeft, ChevronRight, SlidersHorizontal } from 'lucide-react';
 
 // --------------- FilterSection helper ---------------
 function FilterSection({
@@ -28,7 +28,7 @@ function FilterSection({
 // --------------- Skeleton grid ---------------
 function ProductGridSkeleton() {
   return (
-    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+    <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
       {Array.from({ length: 12 }).map((_, i) => (
         <div key={i} className="bg-card border border-border">
           <div className="aspect-square bg-muted animate-pulse" />
@@ -136,6 +136,7 @@ export default function Shop() {
   const [loading, setLoading] = useState(true);
   const [fetchError, setFetchError] = useState('');
   const [quickViewProduct, setQuickViewProduct] = useState<Product | null>(null);
+  const [showMobileFilters, setShowMobileFilters] = useState(false);
   const [apiBrands, setApiBrands] = useState<Record<string, string[]>>({});
 
   // Debounce search input → search state
@@ -256,9 +257,19 @@ export default function Shop() {
             )}
           </div>
 
-          <div className="flex gap-5 items-start">
+          <div className="mb-4 lg:hidden">
+            <button
+              onClick={() => setShowMobileFilters(prev => !prev)}
+              className="inline-flex items-center gap-2 border border-border bg-card px-3 py-2 text-xs font-semibold uppercase tracking-wider"
+            >
+              <SlidersHorizontal size={14} />
+              {showMobileFilters ? 'Hide Filters' : 'Show Filters'}
+            </button>
+          </div>
+
+          <div className="flex flex-col lg:flex-row gap-5 items-start">
             {/* ── LEFT: Filter sidebar ── */}
-            <aside className="w-56 flex-shrink-0 sticky top-24">
+            <aside className={`${showMobileFilters ? 'block' : 'hidden'} w-full lg:block lg:w-56 lg:flex-shrink-0 lg:sticky lg:top-24`}>
               <div className="bg-card border border-border px-4 pt-3 pb-1">
                 <div className="flex items-center justify-between mb-1 pb-2 border-b border-border">
                   <span className="font-bold text-xs uppercase tracking-widest">Filters</span>
@@ -383,7 +394,7 @@ export default function Shop() {
                 </div>
               ) : filteredProducts.length > 0 ? (
                 <>
-                  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+                  <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
                     {filteredProducts.map(product => (
                       <ProductCard key={product.id} product={product} onQuickView={setQuickViewProduct} compact />
                     ))}
