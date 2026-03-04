@@ -1,11 +1,11 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Check, ArrowLeft } from 'lucide-react';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 import { useCart } from '@/context/CartContext';
 import { toast } from 'sonner';
-import { ordersApi, paymentApi } from '@/lib/api';
+import { ordersApi, paymentApi, usersApi, ApiAddress } from '@/lib/api';
 
 const steps = ['Address', 'Shipping', 'Payment', 'Review'];
 
@@ -18,14 +18,39 @@ export default function Checkout() {
   const [placingOrder, setPlacingOrder] = useState(false);
 
   const [address, setAddress] = useState({ name: '', street: '', city: '', state: '', zip: '', phone: '' });
+  const [savedAddresses, setSavedAddresses] = useState<ApiAddress[]>([]);
+  const [loadingAddresses, setLoadingAddresses] = useState(true);
+  const [selectedSavedAddressId, setSelectedSavedAddressId] = useState('');
   const [shippingMethod, setShippingMethod] = useState('standard');
   const [paymentMethod, setPaymentMethod] = useState('cod');
   const [orderConfirmed, setOrderConfirmed] = useState(false);
 
   const shipping = shippingMethod === 'express' ? expressShipping : standardShipping;
 
+  useEffect(() => {
+    const token = localStorage.getItem('bh_token');
+    if (!token) {
+      setLoadingAddresses(false);
+      return;
+    }
+
+    setLoadingAddresses(true);
+    usersApi.getAddresses()
+      .then(list => {
+        setSavedAddresses(list ?? []);
+        const defaultAddress = (list ?? []).find(a => a.isDefault);
+        setSelectedSavedAddressId(defaultAddress?._id ?? list?.[0]?._id ?? '');
+      })
+      .catch(() => setSavedAddresses([]))
+      .finally(() => setLoadingAddresses(false));
+  }, []);
+
   const canNext = () => {
-    if (currentStep === 0) return address.name && address.street && address.city && address.state && address.zip && address.phone;
+    if (currentStep === 0) {
+      if (loadingAddresses) return false;
+      if (savedAddresses.length > 0) return !!selectedSavedAddressId;
+      return !!(address.name && address.street && address.city && address.state && address.zip && address.phone);
+    }
     return true;
   };
 
@@ -48,12 +73,24 @@ export default function Checkout() {
     setPlacingOrder(true);
     try {
       const shippingAddress = {
-        name: address.name,
-        street: address.street,
-        city: address.city,
-        state: address.state,
-        zip: address.zip,
-        phone: address.phone,
+        name: savedAddresses.length > 0
+          ? (savedAddresses.find(a => a._id === selectedSavedAddressId)?.name ?? '')
+          : address.name,
+        street: savedAddresses.length > 0
+          ? (savedAddresses.find(a => a._id === selectedSavedAddressId)?.street ?? '')
+          : address.street,
+        city: savedAddresses.length > 0
+          ? (savedAddresses.find(a => a._id === selectedSavedAddressId)?.city ?? '')
+          : address.city,
+        state: savedAddresses.length > 0
+          ? (savedAddresses.find(a => a._id === selectedSavedAddressId)?.state ?? '')
+          : address.state,
+        zip: savedAddresses.length > 0
+          ? (savedAddresses.find(a => a._id === selectedSavedAddressId)?.zip ?? '')
+          : address.zip,
+        phone: savedAddresses.length > 0
+          ? (savedAddresses.find(a => a._id === selectedSavedAddressId)?.phone ?? '')
+          : address.phone,
         country: 'India',
       };
       const orderItems = items.map(i => ({
@@ -169,32 +206,63 @@ export default function Checkout() {
             {currentStep === 0 && (
               <div className="space-y-4">
                 <h2 className="font-display font-semibold text-lg">Shipping Address</h2>
-                <div className="grid sm:grid-cols-2 gap-4">
-                  <div className="sm:col-span-2">
-                    <label className="block text-xs font-medium mb-1.5">Full Name *</label>
-                    <input value={address.name} onChange={e => setAddress(a => ({ ...a, name: e.target.value }))} className="w-full border border-border px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-primary bg-background" />
+                {loadingAddresses ? (
+                  <div className="space-y-3 animate-pulse">
+                    <div className="h-10 w-full bg-muted" />
+                    <div className="h-10 w-full bg-muted" />
+                    <div className="h-10 w-full bg-muted" />
                   </div>
-                  <div className="sm:col-span-2">
-                    <label className="block text-xs font-medium mb-1.5">Street Address *</label>
-                    <input value={address.street} onChange={e => setAddress(a => ({ ...a, street: e.target.value }))} className="w-full border border-border px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-primary bg-background" />
+                ) : savedAddresses.length > 0 ? (
+                  <div className="space-y-3">
+                    <p className="text-sm text-muted-foreground">Select a saved address for billing and shipping.</p>
+                    {savedAddresses.map((addr) => (
+                      <button
+                        key={addr._id}
+                        onClick={() => setSelectedSavedAddressId(addr._id)}
+                        className={`w-full text-left border p-4 transition-colors ${
+                          selectedSavedAddressId === addr._id ? 'border-primary bg-secondary' : 'border-border hover:border-foreground'
+                        }`}
+                      >
+                        <div className="flex items-center gap-2">
+                          <span className="text-sm font-semibold">{addr.name}</span>
+                          {addr.isDefault && <span className="text-[10px] font-bold text-primary">DEFAULT</span>}
+                        </div>
+                        <p className="text-sm text-muted-foreground mt-1">{addr.street}, {addr.city}, {addr.state} {addr.zip}</p>
+                        <p className="text-xs text-muted-foreground mt-1">{addr.phone}</p>
+                      </button>
+                    ))}
                   </div>
-                  <div>
-                    <label className="block text-xs font-medium mb-1.5">City *</label>
-                    <input value={address.city} onChange={e => setAddress(a => ({ ...a, city: e.target.value }))} className="w-full border border-border px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-primary bg-background" />
+                ) : (
+                  <div className="space-y-2">
+                    <p className="text-sm text-muted-foreground">No saved addresses found. Please fill your billing details manually.</p>
+                    <div className="grid sm:grid-cols-2 gap-4">
+                      <div className="sm:col-span-2">
+                        <label className="block text-xs font-medium mb-1.5">Full Name *</label>
+                        <input value={address.name} onChange={e => setAddress(a => ({ ...a, name: e.target.value }))} className="w-full border border-border px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-primary bg-background" />
+                      </div>
+                      <div className="sm:col-span-2">
+                        <label className="block text-xs font-medium mb-1.5">Street Address *</label>
+                        <input value={address.street} onChange={e => setAddress(a => ({ ...a, street: e.target.value }))} className="w-full border border-border px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-primary bg-background" />
+                      </div>
+                      <div>
+                        <label className="block text-xs font-medium mb-1.5">City *</label>
+                        <input value={address.city} onChange={e => setAddress(a => ({ ...a, city: e.target.value }))} className="w-full border border-border px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-primary bg-background" />
+                      </div>
+                      <div>
+                        <label className="block text-xs font-medium mb-1.5">State *</label>
+                        <input value={address.state} onChange={e => setAddress(a => ({ ...a, state: e.target.value }))} className="w-full border border-border px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-primary bg-background" />
+                      </div>
+                      <div>
+                        <label className="block text-xs font-medium mb-1.5">ZIP Code *</label>
+                        <input value={address.zip} onChange={e => setAddress(a => ({ ...a, zip: e.target.value }))} className="w-full border border-border px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-primary bg-background" />
+                      </div>
+                      <div>
+                        <label className="block text-xs font-medium mb-1.5">Phone *</label>
+                        <input value={address.phone} onChange={e => setAddress(a => ({ ...a, phone: e.target.value }))} className="w-full border border-border px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-primary bg-background" />
+                      </div>
+                    </div>
                   </div>
-                  <div>
-                    <label className="block text-xs font-medium mb-1.5">State *</label>
-                    <input value={address.state} onChange={e => setAddress(a => ({ ...a, state: e.target.value }))} className="w-full border border-border px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-primary bg-background" />
-                  </div>
-                  <div>
-                    <label className="block text-xs font-medium mb-1.5">ZIP Code *</label>
-                    <input value={address.zip} onChange={e => setAddress(a => ({ ...a, zip: e.target.value }))} className="w-full border border-border px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-primary bg-background" />
-                  </div>
-                  <div>
-                    <label className="block text-xs font-medium mb-1.5">Phone *</label>
-                    <input value={address.phone} onChange={e => setAddress(a => ({ ...a, phone: e.target.value }))} className="w-full border border-border px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-primary bg-background" />
-                  </div>
-                </div>
+                )}
               </div>
             )}
             {currentStep === 1 && (
