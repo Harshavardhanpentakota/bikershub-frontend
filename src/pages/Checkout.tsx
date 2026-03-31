@@ -142,7 +142,7 @@ export default function Checkout() {
         const rzp = new (window as any).Razorpay(options);
         rzp.open();
       } else {
-        // COD / UPI — place order directly
+        // COD — place order directly
         await ordersApi.place({ items: orderItems, shippingAddress, shippingMethod, paymentMethod });
         clearCart();
         setOrderConfirmed(true);
@@ -294,7 +294,6 @@ export default function Checkout() {
                 {[
                   { id: 'cod', label: 'Cash on Delivery' },
                   { id: 'razorpay', label: 'Pay Online (Razorpay — UPI / Card / NetBanking)' },
-                  { id: 'upi', label: 'UPI Direct' },
                 ].map(m => (
                   <button
                     key={m.id}
